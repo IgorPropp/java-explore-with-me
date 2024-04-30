@@ -37,7 +37,4 @@ public interface StatsStorage extends JpaRepository<EndpointHit, Long> {
             "GROUP BY s.app, s.uri " +
             "ORDER BY COUNT(s.ip) DESC")
     List<StatsView> findEndpointHitUniqueFalse(LocalDateTime start, LocalDateTime end);
-
-    @Query("select Count(e.uri) from EndpointHit e where e.uri = ?1")
-    Long countUri(String uri);
 }
