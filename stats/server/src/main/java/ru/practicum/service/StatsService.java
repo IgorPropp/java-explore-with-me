@@ -3,7 +3,6 @@ package ru.practicum.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.exception.ObjectNotFoundException;
 import ru.practicum.model.EndpointHit;
 import ru.practicum.model.StatsView;
 import ru.practicum.storage.StatsStorage;
@@ -27,8 +26,7 @@ public class StatsService {
 
     @Transactional(readOnly = true)
     public List<StatsView> getStatsView(Optional<String> start, Optional<String> end,
-                                            Optional<List<String>> uris, Boolean unique)
-            throws ObjectNotFoundException {
+                                            Optional<List<String>> uris, Boolean unique) {
         LocalDateTime startTime = LocalDateTime.parse(start.get(), formatter);
         LocalDateTime endTime = LocalDateTime.parse(end.get(), formatter);
         if (uris.isEmpty()) {

@@ -2,7 +2,6 @@ package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.exception.ObjectNotFoundException;
 import ru.practicum.model.EndpointHit;
 import ru.practicum.model.StatsView;
 import ru.practicum.service.StatsService;
@@ -25,8 +24,7 @@ public class StatsController {
     public List<StatsView> getStatsView(@RequestParam("start") Optional<String> start,
                                         @RequestParam("end") Optional<String> end,
                                         @RequestParam("uris") Optional<List<String>> uris,
-                                        @RequestParam(name = "unique", defaultValue = "false") Boolean unique)
-            throws ObjectNotFoundException {
+                                        @RequestParam(name = "unique", defaultValue = "false") Boolean unique) {
         return statsService.getStatsView(start, end, uris, unique);
     }
 }
