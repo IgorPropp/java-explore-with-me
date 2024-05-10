@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class WebConfig {
-    @Value("${server.url}")
+    @Value("http://localhost:9090")
     private String baseUrl;
 
     @Bean
