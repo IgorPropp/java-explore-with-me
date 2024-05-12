@@ -48,56 +48,9 @@ public class PrivateEventService {
         Event event = eventStorage.findUserEventById(userId, eventId).orElseThrow(() -> new ObjectNotFoundException(
                 "Объект не найден. ", String.format("Event with id=%d userId=%d was not found.",
                 eventId, userId)));
-        if (event.getState().equals(State.PUBLISHED)) {
-            throw new DataIntegrityViolationException("Event is already published");
-        }
-        if (updateEventRequest.getAnnotation() != null) {
-            event.setAnnotation(updateEventRequest.getAnnotation());
-        }
-        if (updateEventRequest.getTitle() != null) {
-            event.setTitle(updateEventRequest.getTitle());
-        }
-        if (updateEventRequest.getDescription() != null) {
-            event.setDescription(updateEventRequest.getDescription());
-        }
-        if (updateEventRequest.getCategory() != null) {
-            Category category = categoryStorage.findById(updateEventRequest.getCategory())
-                    .orElseThrow(() -> new ObjectNotFoundException("Объект не найден. ",
-                            String.format("Category with id=%d was not found.", updateEventRequest.getCategory())));
-            event.setCategory(category);
-        }
-        if (updateEventRequest.getLocation() != null) {
-            event.setLocation(updateEventRequest.getLocation());
-        }
-        if (updateEventRequest.getParticipantLimit() != null) {
-            event.setParticipantLimit(updateEventRequest.getParticipantLimit());
-        }
-        if (updateEventRequest.getEventDate() != null) {
-            event.setEventDate(updateEventRequest.getEventDate());
-        }
-        if (updateEventRequest.getRequestModeration() != null) {
-            event.setRequestModeration(updateEventRequest.getRequestModeration());
-        }
-        if (updateEventRequest.getPaid() != null) {
-            event.setPaid(updateEventRequest.getPaid());
-        }
-        if (updateEventRequest.getStateAction() != null) {
-            switch (updateEventRequest.getStateAction()) {
-                case CANCEL_REVIEW:
-                    event.setState(State.CANCELED);
-                    break;
-                case SEND_TO_REVIEW:
-                    event.setState(State.PENDING);
-                    break;
-            }
-        }
-        event = eventStorage.saveAndFlush(event);
-        return EventMapper.toEventFullDto(event);
-    }
-
-    private User userValidation(Long userId) throws ObjectNotFoundException {
-        return userStorage.findById(userId).orElseThrow(() -> new ObjectNotFoundException("Объект не найден. ",
-                String.format("User with id=%d was not found.", userId)));
+        Event updatedEvent = eventValidation(event, updateEventRequest);
+        eventStorage.saveAndFlush(updatedEvent);
+        return EventMapper.toEventFullDto(updatedEvent);
     }
 
     @Transactional
@@ -142,20 +95,16 @@ public class PrivateEventService {
                                                                   EventRequestStatusUpdateRequest updateRequest) {
         Event event = eventStorage.findUserEventById(userId, eventId).orElseThrow(() -> new ObjectNotFoundException(
                 "Объект не найден. ", "Event with id = " + eventId + " and user id = " + userId + " doesn't exist."));
-
         if (!event.getInitiator().getId().equals(userId)) {
             throw new ConditionsAreNotMetException("Не выполнены условия для совершения операции",
                     "Access denied. User with id = " + userId + " is not an event initiator.");
         }
-
         List<ParticipationRequest> participationRequests = requestStorage.findAllByIdInAndAndEventId(
                 updateRequest.getRequestIds(), eventId);
-
         if (participationRequests.size() != updateRequest.getRequestIds().size()) {
             throw new ObjectNotFoundException("Объект не найден. ",
                     "Incorrect request id(s) received in the request body.");
         }
-
         for (ParticipationRequest request : participationRequests) {
             if (!request.getStatus().equals(Status.PENDING)) {
                 throw new DataIntegrityViolationException(
@@ -200,5 +149,57 @@ public class PrivateEventService {
             eventStorage.save(event);
         }
         return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
+    }
+
+    private User userValidation(Long userId) throws ObjectNotFoundException {
+        return userStorage.findById(userId).orElseThrow(() -> new ObjectNotFoundException("Объект не найден. ",
+                String.format("User with id=%d was not found.", userId)));
+    }
+
+    private Event eventValidation(Event event, UpdateEventRequest updateEventRequest) {
+        if (event.getState().equals(State.PUBLISHED)) {
+            throw new DataIntegrityViolationException("Event is already published");
+        }
+        if (updateEventRequest.getAnnotation() != null) {
+            event.setAnnotation(updateEventRequest.getAnnotation());
+        }
+        if (updateEventRequest.getTitle() != null) {
+            event.setTitle(updateEventRequest.getTitle());
+        }
+        if (updateEventRequest.getDescription() != null) {
+            event.setDescription(updateEventRequest.getDescription());
+        }
+        if (updateEventRequest.getCategory() != null) {
+            Category category = categoryStorage.findById(updateEventRequest.getCategory())
+                    .orElseThrow(() -> new ObjectNotFoundException("Объект не найден. ",
+                            String.format("Category with id=%d was not found.", updateEventRequest.getCategory())));
+            event.setCategory(category);
+        }
+        if (updateEventRequest.getLocation() != null) {
+            event.setLocation(updateEventRequest.getLocation());
+        }
+        if (updateEventRequest.getParticipantLimit() != null) {
+            event.setParticipantLimit(updateEventRequest.getParticipantLimit());
+        }
+        if (updateEventRequest.getEventDate() != null) {
+            event.setEventDate(updateEventRequest.getEventDate());
+        }
+        if (updateEventRequest.getRequestModeration() != null) {
+            event.setRequestModeration(updateEventRequest.getRequestModeration());
+        }
+        if (updateEventRequest.getPaid() != null) {
+            event.setPaid(updateEventRequest.getPaid());
+        }
+        if (updateEventRequest.getStateAction() != null) {
+            switch (updateEventRequest.getStateAction()) {
+                case CANCEL_REVIEW:
+                    event.setState(State.CANCELED);
+                    break;
+                case SEND_TO_REVIEW:
+                    event.setState(State.PENDING);
+                    break;
+            }
+        }
+        return event;
     }
 }

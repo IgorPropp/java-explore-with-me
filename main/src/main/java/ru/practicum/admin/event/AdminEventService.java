@@ -34,6 +34,7 @@ public class AdminEventService {
                                         String rangeStart, String rangeEnd, Integer from, Integer size) {
         List<State> listState = new ArrayList<>();
         List<Event> listEvents;
+        LocalDateTime startTime;
         if (states != null) {
             for (String state: states) {
                 listState.add(State.valueOf(state));
@@ -41,23 +42,37 @@ public class AdminEventService {
         }
         final Pageable pageable = PageRequest.of(from, size);
         if (users == null && states == null && rangeStart == null && rangeEnd == null && categories == null) {
-            listEvents = eventStorage.findAll(pageable)
-                    .getContent();
+            listEvents = eventStorage.findAll(pageable).getContent();
         } else if (states == null && rangeStart == null && rangeEnd == null) {
             listEvents = eventStorage.searchEventsByAdminWithOutStatesAndRange(users, categories, pageable)
                     .getContent();
         } else if (users == null) {
+            if (rangeStart == null) {
+                startTime = LocalDateTime.MIN;
+            } else {
+                startTime = LocalDateTime.parse(rangeStart, formatter);
+            }
             listEvents = eventStorage.searchEventsNotUsersGetConditions(listState, categories,
-                    LocalDateTime.parse(rangeStart, formatter),
+                    startTime,
                     LocalDateTime.parse(rangeEnd, formatter), pageable).getContent();
         } else if (categories == null) {
+            if (rangeStart == null) {
+                startTime = LocalDateTime.MIN;
+            } else {
+                startTime = LocalDateTime.parse(rangeStart, formatter);
+            }
             listEvents = eventStorage.searchEventsNotCategoriesGetConditions(users, listState,
-                            LocalDateTime.parse(rangeStart, formatter),
-                            LocalDateTime.parse(rangeEnd, formatter), pageable).getContent();
+                    startTime,
+                    LocalDateTime.parse(rangeEnd, formatter), pageable).getContent();
         } else {
+            if (rangeStart == null) {
+                startTime = LocalDateTime.MIN;
+            } else {
+                startTime = LocalDateTime.parse(rangeStart, formatter);
+            }
             listEvents = eventStorage.searchEventsByAdminGetConditions(users, listState, categories,
-                            LocalDateTime.parse(rangeStart, formatter),
-                            LocalDateTime.parse(rangeEnd, formatter), pageable).getContent();
+                    startTime,
+                    LocalDateTime.parse(rangeEnd, formatter), pageable).getContent();
         }
         return EventMapper.toListEventFullDto(listEvents);
     }

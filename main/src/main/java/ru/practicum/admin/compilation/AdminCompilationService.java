@@ -28,9 +28,7 @@ public class AdminCompilationService {
         Compilation compilation = CompilationMapper.toCompilation(newCompilationDto);
         if (newCompilationDto.getEvents() != null) {
             if (!newCompilationDto.getEvents().isEmpty()) {
-                for (Long id : newCompilationDto.getEvents()) {
-                    compilation.getEvents().add(eventStorage.findById(id).get());
-                }
+                compilation.getEvents().addAll(eventStorage.findAllByIdIn(new HashSet<>(newCompilationDto.getEvents())));
             }
         }
         compilationStorage.save(compilation);

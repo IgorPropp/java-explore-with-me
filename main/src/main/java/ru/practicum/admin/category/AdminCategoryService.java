@@ -12,8 +12,6 @@ import ru.practicum.model.Category;
 import ru.practicum.storage.CategoryStorage;
 import ru.practicum.storage.EventStorage;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class AdminCategoryService {
@@ -38,14 +36,13 @@ public class AdminCategoryService {
 
     @Transactional
     public CategoryDto deleteCategory(Long catId) {
-        Optional<Category> category = categoryStorage.findById(catId);
-        if (category.isEmpty()) {
-            throw new BadRequestException("Запрос составлен с ошибкой", "Такой категории нет.");
-        }
-        if (!eventStorage.findCategoryByIdInEvent(catId).get().isEmpty()) {
+        Category category = categoryStorage.findById(catId).orElseThrow(() -> new BadRequestException(
+                "Запрос составлен с ошибкой", "Такой категории нет."));
+        if (!eventStorage.findCategoryByIdInEvent(catId).orElseThrow(() -> new BadRequestException(
+                "Запрос составлен с ошибкой", "Такой категории нет.")).isEmpty()) {
             throw new DataIntegrityViolationException("Запрос составлен с ошибкой У категории есть events.");
         }
-        categoryStorage.deleteById(category.get().getId());
-        return CategoryMapper.toCategoryDto(category.get());
+        categoryStorage.deleteById(category.getId());
+        return CategoryMapper.toCategoryDto(category);
     }
 }

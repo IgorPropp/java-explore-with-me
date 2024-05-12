@@ -4,9 +4,12 @@ import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import javax.persistence.RollbackException;
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -15,57 +18,20 @@ import java.util.Collections;
 public class ErrorHandler {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler
-    public ApiError requestErrorResponse(BadRequestException e) {
+    @ExceptionHandler({BadRequestException.class, MethodArgumentNotValidException.class,
+            ConversionFailedException.class, ConstraintViolationException.class,
+            MissingServletRequestParameterException.class, RollbackException.class,
+            ConstraintViolationException.class})
+    public ApiError badRequestExceptionResponse(Exception e) {
         return new ApiError(Collections.emptyList(),
                 e.getMessage(),
                 "For the requested operation the conditions are not met.",
                 HttpStatus.BAD_REQUEST,
-                LocalDateTime.now());
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler
-    public ApiError requestBadMethodArgumentError(MethodArgumentNotValidException e) {
-        return new ApiError(Collections.emptyList(),
-                e.getMessage(),
-                "For the requested operation the conditions are not met.",
-                HttpStatus.BAD_REQUEST,
-                LocalDateTime.now());
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler
-    public ApiError requestConversionFailedResponse(ConversionFailedException e) {
-        return new ApiError(Collections.emptyList(),
-                e.getMessage(),
-                "For the requested operation the conditions are not met.",
-                HttpStatus.BAD_REQUEST,
-                LocalDateTime.now());
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler
-    public ApiError requestErrorResponse(ConstraintViolationException e) {
-        return new ApiError(Collections.emptyList(),
-                e.getMessage(),
-                "For the requested operation the conditions are not met.",
-                HttpStatus.BAD_REQUEST,
-                LocalDateTime.now());
-    }
-
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ExceptionHandler
-    public ApiError errorResponse(ConditionsAreNotMetException e) {
-        return new ApiError(Collections.emptyList(),
-                e.getMessage(),
-                "For the requested operation the conditions are not met.",
-                HttpStatus.FORBIDDEN,
                 LocalDateTime.now());
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler
+    @ExceptionHandler(ObjectNotFoundException.class)
     public ApiError objectNotFoundResponse(ObjectNotFoundException e) {
         return new ApiError(Collections.emptyList(),
                 e.getMessage(),
@@ -75,7 +41,7 @@ public class ErrorHandler {
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)
-    @ExceptionHandler
+    @ExceptionHandler(DataIntegrityViolationException.class)
     public ApiError dataIntegrityViolationResponse(DataIntegrityViolationException e) {
         return new ApiError(Collections.emptyList(),
                 e.getMessage(),
@@ -83,4 +49,14 @@ public class ErrorHandler {
                 HttpStatus.CONFLICT,
                 LocalDateTime.now());
     }
+
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    @ExceptionHandler
+//    public ApiError unknownError(RuntimeException e) {
+//        return new ApiError(Collections.emptyList(),
+//                e.getMessage(),
+//                "UnknownError",
+//                HttpStatus.INTERNAL_SERVER_ERROR,
+//                LocalDateTime.now());
+//    }
 }

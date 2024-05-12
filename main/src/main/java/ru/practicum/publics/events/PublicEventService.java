@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.client.StatsClient;
+import ru.practicum.StatsWebClient;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.error.BadRequestException;
@@ -32,7 +32,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PublicEventService {
 
-    private final StatsClient statsClient = new StatsClient("http://localhost:9090");
+    private final StatsWebClient statsClient = new StatsWebClient("http://localhost:9090");
     private final EventStorage eventStorage;
 
     @Transactional(readOnly = true)
