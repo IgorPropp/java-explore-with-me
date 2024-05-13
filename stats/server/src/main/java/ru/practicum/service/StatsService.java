@@ -37,4 +37,19 @@ public class StatsService {
                     statsStorage.findEndpointHitByUriUniqueFalse(uris.get(), startTime, endTime);
         }
     }
+
+    public List<StatsView> getRequestsWithViewsByIp(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique, String ip) {
+
+        if (unique) {
+            if (uris == null || uris.isEmpty()) {
+                return statsStorage.getUniqueIpRequestsWithoutUriByIp(start, end, ip);
+            }
+            return statsStorage.getUniqueIpRequestsWithUriByIp(start, end, uris, ip);
+        } else {
+            if (uris == null || uris.isEmpty()) {
+                return statsStorage.getAllRequestsWithoutUriByIp(start, end, ip);
+            }
+            return statsStorage.getAllRequestsWithUriByIp(start, end, uris, ip);
+        }
+    }
 }
