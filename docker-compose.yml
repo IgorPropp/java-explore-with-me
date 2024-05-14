@@ -34,7 +34,7 @@ services:
       - stats-db
     environment:
       - STATS_SERVER_URL=http://server:9090
-      - spring.datasource.url=jdbc:postgresql://ewm-db:5432/main
+      - spring.datasource.url=jdbc:postgresql://ewm-db:5432/ewm
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=admin
     restart: always
