@@ -25,7 +25,7 @@ services:
     restart: always
 
   ewm-service:
-    build: ./server
+    build: ./stats/server
     image: server-image
     ports:
       - "8080:8080"
