@@ -23,7 +23,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=admin
 
-  main-service:
+  ewm-service:
     build: main/
     image: main-service-image
     container_name: main-service-container
