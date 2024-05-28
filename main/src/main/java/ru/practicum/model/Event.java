@@ -6,6 +6,8 @@ import ru.practicum.model.enums.State;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "events")
@@ -56,4 +58,8 @@ public class Event {
     @Size(min = 3, max = 120)
     private String title;
     private Long views;
+    @ManyToMany
+    @JoinTable(name = "location_groups_events", joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "location_event_group_id"))
+    private Set<LocationEvents> locationEvents = new HashSet<>();
 }
